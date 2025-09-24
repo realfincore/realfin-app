@@ -17,7 +17,18 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router": "^7.9.1"
+    "react-router": "^7.9.1",
+    "@cosmjs/cosmwasm-stargate": "0.36.0",
+    "@cosmjs/crypto": "0.36.0",
+    "@cosmjs/encoding": "0.36.0",
+    "@cosmjs/ledger-amino": "0.36.0",
+    "@cosmjs/proto-signing": "0.36.0",
+    "@cosmjs/stargate": "0.36.0",
+    "@cosmjs/tendermint-rpc": "0.36.0",
+    "@keplr-wallet/crypto": "0.12.263",
+    "@keplr-wallet/types": "0.12.263",
+    "@keplr-wallet/unit": "0.12.263",
+    "cosmjs-types": "^0.10.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
