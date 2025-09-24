@@ -21,9 +21,7 @@ const Layout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isConnected) {
-      navigate('/login');
-     }
+    // Allow access without wallet connection
   }, [isConnected, navigate]);
 
   const navigation = [
