@@ -34,3 +34,4 @@ public/locales/*
 
 *.tsbuildinfo
 vite.config.ts.timestamp-*.mjs
+.env
