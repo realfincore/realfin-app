@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { PiggyBank, TrendingUp, Shield, DollarSign } from "lucide-react";
+import { PiggyBank, TrendingUp, Shield, DollarSign, Send, ArrowDownLeft, X } from "lucide-react";
 
 const Lend: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"lend" | "borrowed">("lend");
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<string>("");
 
   const lendingPools = [
     { asset: "ATOM", apy: "12.5%", tvl: "$2.3M", available: "$450K", collateral: "125%" },
@@ -21,6 +24,138 @@ const Lend: React.FC = () => {
     { asset: "USDC", borrowed: "1,200", debt: "98.4", ltv: "65%", liquidation: "$0.85", status: "Safe" },
     { asset: "ATOM", borrowed: "50.0", debt: "8.2", ltv: "45%", liquidation: "$6.50", status: "Safe" }
   ];
+
+  const handleSend = (asset: string) => {
+    setSelectedAsset(asset);
+    setShowSendModal(true);
+  };
+
+  const handleReceive = (asset: string) => {
+    setSelectedAsset(asset);
+    setShowReceiveModal(true);
+  };
+
+  const SendModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <Send className="h-5 w-5 mr-2" />
+            Send {selectedAsset}
+          </h3>
+          <button
+            onClick={() => setShowSendModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Recipient Address
+            </label>
+            <input
+              type="text"
+              placeholder="Enter wallet address"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Amount
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="0.00"
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none pr-16"
+              />
+              <span className="absolute right-3 top-2 text-gray-400">{selectedAsset}</span>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Memo (Optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Enter memo"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Network Fee:</span>
+              <span className="text-white">0.001 {selectedAsset}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowSendModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ReceiveModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <ArrowDownLeft className="h-5 w-5 mr-2" />
+            Receive {selectedAsset}
+          </h3>
+          <button
+            onClick={() => setShowReceiveModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="text-center space-y-4">
+          <div className="bg-white p-4 rounded-lg inline-block">
+            <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500 text-xs">QR Code</span>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Your {selectedAsset} Address
+            </label>
+            <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
+              <div className="text-white font-mono text-sm break-all">
+                realfin1abc123def456ghi789jkl012mno345pqr678stu901
+              </div>
+            </div>
+          </div>
+          
+          <button className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+            Copy Address
+          </button>
+          
+          <p className="text-gray-400 text-sm">
+            Only send {selectedAsset} to this address. Sending other assets may result in permanent loss.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -155,6 +290,18 @@ const Lend: React.FC = () => {
                     <div className="text-sm text-gray-400">APY: {position.apy}</div>
                   </div>
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSend(position.asset)}
+                      className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={() => handleReceive(position.asset)}
+                      className="rounded-md bg-purple-600 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-700"
+                    >
+                      Receive
+                    </button>
                     <button className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700">
                       Withdraw
                     </button>
@@ -200,6 +347,18 @@ const Lend: React.FC = () => {
                     <div className="text-sm text-gray-400">Liquidation Price</div>
                   </div>
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSend(position.asset)}
+                      className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={() => handleReceive(position.asset)}
+                      className="rounded-md bg-purple-600 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-700"
+                    >
+                      Receive
+                    </button>
                     <button className="rounded-md bg-red-600 px-3 py-1 text-sm text-white transition-colors hover:bg-red-700">
                       Repay
                     </button>
@@ -213,6 +372,9 @@ const Lend: React.FC = () => {
           </div>
         </>
       )}
+      
+      {showSendModal && <SendModal />}
+      {showReceiveModal && <ReceiveModal />}
     </div>
   );
 };
