@@ -8,6 +8,7 @@ import {
   Bitcoin,
   Building2,
   Database,
+  Shield,
   LogOut,
   Menu,
   X
@@ -27,6 +28,7 @@ const Layout: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Wallet },
     { name: 'Lend', href: '/lend', icon: PiggyBank },
+    { name: 'Stake', href: '/stake', icon: Shield },
     { name: 'Bonds', href: '/bonds', icon: Banknote },
     { name: 'Stocks', href: '/stocks', icon: TrendingUp },
     { name: 'Crypto', href: '/crypto', icon: Bitcoin },
