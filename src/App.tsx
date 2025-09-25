@@ -2,16 +2,16 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { WalletProvider } from "./context/WalletContext";
 import { lazy } from "react";
 
-const Layout = lazy(() => import("./components/Layout").then(module => ({ default: module.default })));
-const Login = lazy(() => import("./pages/Login").then(module => ({ default: module.default })));
-const Dashboard = lazy(() => import("./pages/Dashboard").then(module => ({ default: module.default })));
-const Lend = lazy(() => import("./pages/Lend").then(module => ({ default: module.default })));
-const Bonds = lazy(() => import("./pages/Bonds").then(module => ({ default: module.default })));
-const Stocks = lazy(() => import("./pages/Stocks").then(module => ({ default: module.default })));
-const Crypto = lazy(() => import("./pages/Crypto").then(module => ({ default: module.default })));
-const RWA = lazy(() => import("./pages/RWA").then(module => ({ default: module.default })));
-const ChainData = lazy(() => import("./pages/ChainData").then(module => ({ default: module.default })));
-const Stake = lazy(() => import("./pages/Stake").then(module => ({ default: module.default })));
+const Layout = lazy(() => import("./components/Layout"));
+const Login = lazy(() => import("./pages/Login"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Lend = lazy(() => import("./pages/Lend"));
+const Bonds = lazy(() => import("./pages/Bonds"));
+const Stocks = lazy(() => import("./pages/Stocks"));
+const Crypto = lazy(() => import("./pages/Crypto"));
+const RWA = lazy(() => import("./pages/RWA"));
+const ChainData = lazy(() => import("./pages/ChainData"));
+const Stake = lazy(() => import("./pages/Stake"));
 
 function App() {
   return (
