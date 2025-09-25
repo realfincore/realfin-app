@@ -439,4 +439,40 @@ const Stocks: React.FC = () => {
       {/* My Positions */}
       <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
         <h2 className="text-xl font-semibold text-white mb-6">My Stock Positions</h2>
-        <div className="space-y-
+        <div className="space-y-4">
+          {myPositions.map((position, index) => (
+            <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {position.symbol[0]}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">{position.symbol}</div>
+                    <div className="text-gray-400 text-sm">{position.shares} shares</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-white font-semibold">{position.currentPrice}</div>
+                  <div className="text-gray-400 text-sm">Avg: {position.avgPrice}</div>
+                </div>
+                <div className="text-right">
+                  <div className={`font-semibold ${position.positive ? 'text-green-400' : 'text-red-400'}`}>
+                    {position.pnl}
+                  </div>
+                  <div className={`text-sm ${position.positive ? 'text-green-400' : 'text-red-400'}`}>
+                    {position.pnlPercent}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showBuyModal && <BuyModal />}
+      {showSellModal && <SellModal />}
+    </div>
+  );
+};
