@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Banknote, Filter, Calendar, TrendingUp, Shield } from 'lucide-react';
+import { Banknote, Filter, Calendar, TrendingUp, Shield, X, ShoppingCart } from 'lucide-react';
 
 const Bonds: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [selectedBond, setSelectedBond] = useState<any>(null);
 
   const bondTypes = ['all', 'government', 'corporate', 'municipal', 'treasury'];
   
@@ -56,6 +58,11 @@ const Bonds: React.FC = () => {
 
   const filteredBonds = selectedType === 'all' ? bonds : bonds.filter(bond => bond.type === selectedType);
 
+  const handleBuy = (bond: any) => {
+    setSelectedBond(bond);
+    setShowBuyModal(true);
+  };
+
   const getRatingColor = (rating: string) => {
     if (rating === 'AAA') return 'text-green-400';
     if (rating.startsWith('AA')) return 'text-blue-400';
@@ -72,6 +79,102 @@ const Bonds: React.FC = () => {
     };
     return colors[type as keyof typeof colors] || 'bg-gray-600';
   };
+
+  const BuyModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Buy {selectedBond?.name}
+          </h3>
+          <button
+            onClick={() => setShowBuyModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Bond Details</div>
+            <div className="text-white font-medium">{selectedBond?.name}</div>
+            <div className="text-gray-400 text-sm">Price: {selectedBond?.price}</div>
+            <div className="text-green-400 text-sm">Yield: {selectedBond?.yield}</div>
+            <div className="text-gray-400 text-sm">Maturity: {selectedBond?.maturity}</div>
+            <div className={`text-sm font-medium ${getRatingColor(selectedBond?.rating || '')}`}>
+              Rating: {selectedBond?.rating}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Number of Bonds
+            </label>
+            <input
+              type="number"
+              placeholder="1"
+              min="1"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+            <div className="text-sm text-gray-400 mt-1">
+              Minimum purchase: 1 bond ($1,000 face value)
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Order Type
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>Market Order</option>
+              <option>Limit Order</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Estimated Cost:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Accrued Interest:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Transaction Fee:</span>
+              <span className="text-white">$10.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-2 pt-2 border-t border-slate-600">
+              <span className="text-gray-400 font-medium">Total:</span>
+              <span className="text-white font-medium">$0.00</span>
+            </div>
+          </div>
+          
+          <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-3">
+            <div className="text-blue-400 text-sm font-medium mb-1">💡 Bond Information</div>
+            <div className="text-blue-300 text-sm">
+              This bond pays {selectedBond?.yield} annually until maturity on {selectedBond?.maturity}.
+              Duration: {selectedBond?.duration}
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowBuyModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-lg transition-colors">
+            Buy Bonds
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -176,7 +279,10 @@ const Bonds: React.FC = () => {
                   <td className="py-4 text-gray-300">{bond.duration}</td>
                   <td className="py-4 text-gray-300">{bond.maturity}</td>
                   <td className="py-4">
-                    <button className="px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors">
+                    <button
+                      onClick={() => handleBuy(bond)}
+                      className="px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors"
+                    >
                       Buy
                     </button>
                   </td>
@@ -267,6 +373,8 @@ const Bonds: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {showBuyModal && <BuyModal />}
     </div>
   );
 };

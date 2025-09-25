@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Filter, Search, BarChart3, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, Filter, Search, BarChart3, DollarSign, X, ShoppingCart, Minus } from 'lucide-react';
 
 const Stocks: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<string>('all');
   const [selectedMarket, setSelectedMarket] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [showSellModal, setShowSellModal] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<any>(null);
 
   const providers = ['all', 'nasdaq', 'nyse', 'ftse', 'nikkei'];
   const markets = ['all', 'us', 'uk', 'japan', 'europe'];
@@ -109,6 +112,164 @@ const Stocks: React.FC = () => {
                          stock.symbol.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesProvider && matchesMarket && matchesSearch;
   });
+
+  const handleBuy = (stock: any) => {
+    setSelectedStock(stock);
+    setShowBuyModal(true);
+  };
+
+  const handleSell = (stock: any) => {
+    setSelectedStock(stock);
+    setShowSellModal(true);
+  };
+
+  const BuyModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Buy {selectedStock?.symbol}
+          </h3>
+          <button
+            onClick={() => setShowBuyModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Stock Details</div>
+            <div className="text-white font-medium">{selectedStock?.name}</div>
+            <div className="text-gray-400 text-sm">Current Price: {selectedStock?.price}</div>
+            <div className={`text-sm ${selectedStock?.positive ? 'text-green-400' : 'text-red-400'}`}>
+              {selectedStock?.change} ({selectedStock?.changeValue})
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Number of Shares
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Order Type
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>Market Order</option>
+              <option>Limit Order</option>
+              <option>Stop Loss</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Estimated Cost:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Trading Fee:</span>
+              <span className="text-white">$2.99</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowBuyModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-lg transition-colors">
+            Buy Shares
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const SellModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <Minus className="h-5 w-5 mr-2" />
+            Sell {selectedStock?.symbol}
+          </h3>
+          <button
+            onClick={() => setShowSellModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Current Position</div>
+            <div className="text-white font-medium">{selectedStock?.name}</div>
+            <div className="text-gray-400 text-sm">Current Price: {selectedStock?.price}</div>
+            <div className="text-gray-400 text-sm">Shares Owned: 0</div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Number of Shares to Sell
+            </label>
+            <input
+              type="number"
+              placeholder="0"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Order Type
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>Market Order</option>
+              <option>Limit Order</option>
+              <option>Stop Loss</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Estimated Proceeds:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Trading Fee:</span>
+              <span className="text-white">$2.99</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowSellModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg transition-colors">
+            Sell Shares
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -254,10 +415,16 @@ const Stocks: React.FC = () => {
                   <td className="py-4 text-gray-300">{stock.marketCap}</td>
                   <td className="py-4">
                     <div className="flex space-x-2">
-                      <button className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm transition-colors">
+                      <button
+                        onClick={() => handleBuy(stock)}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm transition-colors"
+                      >
                         Buy
                       </button>
-                      <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors">
+                      <button
+                        onClick={() => handleSell(stock)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
+                      >
                         Sell
                       </button>
                     </div>
@@ -272,44 +439,4 @@ const Stocks: React.FC = () => {
       {/* My Positions */}
       <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
         <h2 className="text-xl font-semibold text-white mb-6">My Stock Positions</h2>
-        <div className="space-y-4">
-          {myPositions.map((position, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {position.symbol[0]}
-                </div>
-                <div>
-                  <div className="font-semibold text-white">{position.symbol}</div>
-                  <div className="text-gray-400 text-sm">{position.shares} shares @ {position.avgPrice}</div>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-white font-semibold">{position.currentPrice}</div>
-                <div className="text-gray-400 text-sm">Current Price</div>
-              </div>
-              <div className="text-right">
-                <div className={`font-semibold ${position.positive ? 'text-green-400' : 'text-red-400'}`}>
-                  {position.pnl}
-                </div>
-                <div className={`text-sm ${position.positive ? 'text-green-400' : 'text-red-400'}`}>
-                  {position.pnlPercent}
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors">
-                  Add More
-                </button>
-                <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors">
-                  Sell
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Stocks;
+        <div className="space-y-

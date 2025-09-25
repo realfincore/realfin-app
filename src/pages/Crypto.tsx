@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Bitcoin, TrendingUp, TrendingDown, Target, BarChart3, DollarSign } from 'lucide-react';
+import { Bitcoin, TrendingUp, TrendingDown, Target, BarChart3, DollarSign, X, Plus, Minus, Edit } from 'lucide-react';
 
 const Crypto: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'long' | 'short'>('long');
+  const [showLongModal, setShowLongModal] = useState(false);
+  const [showShortModal, setShowShortModal] = useState(false);
+  const [showModifyModal, setShowModifyModal] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
 
   const cryptoAssets = [
     { 
@@ -115,6 +120,341 @@ const Crypto: React.FC = () => {
 
   const currentPositions = activeTab === 'long' ? longPositions : shortPositions;
 
+  const handleLong = (asset: any) => {
+    setSelectedAsset(asset);
+    setShowLongModal(true);
+  };
+
+  const handleShort = (asset: any) => {
+    setSelectedAsset(asset);
+    setShowShortModal(true);
+  };
+
+  const handleModify = (position: any) => {
+    setSelectedAsset(position);
+    setShowModifyModal(true);
+  };
+
+  const handleClose = (position: any) => {
+    setSelectedAsset(position);
+    setShowCloseModal(true);
+  };
+
+  const LongModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <Plus className="h-5 w-5 mr-2 text-green-400" />
+            Long {selectedAsset?.symbol}
+          </h3>
+          <button
+            onClick={() => setShowLongModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Asset Details</div>
+            <div className="text-white font-medium">{selectedAsset?.name}</div>
+            <div className="text-gray-400 text-sm">Current Price: {selectedAsset?.price}</div>
+            <div className={`text-sm ${selectedAsset?.positive ? 'text-green-400' : 'text-red-400'}`}>
+              {selectedAsset?.change} ({selectedAsset?.changeValue})
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Position Size
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="0.00"
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none pr-16"
+              />
+              <span className="absolute right-3 top-2 text-gray-400">{selectedAsset?.symbol}</span>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Leverage
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>1x</option>
+              <option>2x</option>
+              <option>3x</option>
+              <option>5x</option>
+              <option>10x</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Margin Required:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Liquidation Price:</span>
+              <span className="text-red-400">$0.00</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowLongModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white rounded-lg transition-colors">
+            Open Long
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ShortModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <Minus className="h-5 w-5 mr-2 text-red-400" />
+            Short {selectedAsset?.symbol}
+          </h3>
+          <button
+            onClick={() => setShowShortModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Asset Details</div>
+            <div className="text-white font-medium">{selectedAsset?.name}</div>
+            <div className="text-gray-400 text-sm">Current Price: {selectedAsset?.price}</div>
+            <div className={`text-sm ${selectedAsset?.positive ? 'text-green-400' : 'text-red-400'}`}>
+              {selectedAsset?.change} ({selectedAsset?.changeValue})
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Position Size
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="0.00"
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none pr-16"
+              />
+              <span className="absolute right-3 top-2 text-gray-400">{selectedAsset?.symbol}</span>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Leverage
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>1x</option>
+              <option>2x</option>
+              <option>3x</option>
+              <option>5x</option>
+              <option>10x</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Margin Required:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Liquidation Price:</span>
+              <span className="text-red-400">$0.00</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowShortModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg transition-colors">
+            Open Short
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ModifyModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <Edit className="h-5 w-5 mr-2" />
+            Modify {selectedAsset?.symbol} Position
+          </h3>
+          <button
+            onClick={() => setShowModifyModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Current Position</div>
+            <div className="text-white font-medium">{selectedAsset?.name}</div>
+            <div className="text-gray-400 text-sm">Size: {selectedAsset?.size}</div>
+            <div className="text-gray-400 text-sm">Entry: {selectedAsset?.entryPrice}</div>
+            <div className={`text-sm ${selectedAsset?.positive ? 'text-green-400' : 'text-red-400'}`}>
+              P&L: {selectedAsset?.pnl} ({selectedAsset?.pnlPercent})
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Stop Loss Price
+            </label>
+            <input
+              type="number"
+              placeholder="Enter stop loss price"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Take Profit Price
+            </label>
+            <input
+              type="number"
+              placeholder="Enter take profit price"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Add/Remove Margin
+            </label>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                placeholder="0.00"
+                className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+              />
+              <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                Add
+              </button>
+              <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowModifyModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg transition-colors">
+            Update Position
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const CloseModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <X className="h-5 w-5 mr-2" />
+            Close {selectedAsset?.symbol} Position
+          </h3>
+          <button
+            onClick={() => setShowCloseModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Position Summary</div>
+            <div className="text-white font-medium">{selectedAsset?.name}</div>
+            <div className="text-gray-400 text-sm">Size: {selectedAsset?.size}</div>
+            <div className="text-gray-400 text-sm">Entry: {selectedAsset?.entryPrice}</div>
+            <div className="text-gray-400 text-sm">Current: {selectedAsset?.currentPrice}</div>
+            <div className={`text-sm font-semibold ${selectedAsset?.positive ? 'text-green-400' : 'text-red-400'}`}>
+              P&L: {selectedAsset?.pnl} ({selectedAsset?.pnlPercent})
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Close Percentage
+            </label>
+            <div className="flex space-x-2 mb-2">
+              <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded text-sm">25%</button>
+              <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded text-sm">50%</button>
+              <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded text-sm">75%</button>
+              <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded text-sm">100%</button>
+            </div>
+            <input
+              type="number"
+              placeholder="100"
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none"
+            />
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Estimated Proceeds:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Trading Fee:</span>
+              <span className="text-white">$5.00</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowCloseModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg transition-colors">
+            Close Position
+          </button>
+        </div>
+      </div>
+    </div>
+  );
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -221,10 +561,16 @@ const Crypto: React.FC = () => {
                   <td className="py-4 text-gray-300">{asset.marketCap}</td>
                   <td className="py-4">
                     <div className="flex space-x-2">
-                      <button className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm transition-colors">
+                      <button
+                        onClick={() => handleLong(asset)}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm transition-colors"
+                      >
                         Long
                       </button>
-                      <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors">
+                      <button
+                        onClick={() => handleShort(asset)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
+                      >
                         Short
                       </button>
                     </div>
@@ -296,10 +642,16 @@ const Crypto: React.FC = () => {
               </div>
 
               <div className="flex justify-end space-x-2 mt-4">
-                <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors">
+                <button
+                  onClick={() => handleModify(position)}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors"
+                >
                   Modify
                 </button>
-                <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors">
+                <button
+                  onClick={() => handleClose(position)}
+                  className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm transition-colors"
+                >
                   Close
                 </button>
               </div>
@@ -307,6 +659,11 @@ const Crypto: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {showLongModal && <LongModal />}
+      {showShortModal && <ShortModal />}
+      {showModifyModal && <ModifyModal />}
+      {showCloseModal && <CloseModal />}
     </div>
   );
 };

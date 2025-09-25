@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Building2, Filter, MapPin, Star, DollarSign, TrendingUp } from 'lucide-react';
+import { Building2, Filter, MapPin, Star, DollarSign, TrendingUp, X, ShoppingCart } from 'lucide-react';
 
 const RWA: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPartner, setSelectedPartner] = useState<string>('all');
+  const [showInvestModal, setShowInvestModal] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
 
   const categories = ['all', 'real-estate', 'commodities', 'art', 'infrastructure', 'bonds'];
   const partners = ['all', 'blackrock', 'vanguard', 'goldmansachs', 'jpmorgan'];
@@ -125,6 +127,109 @@ const RWA: React.FC = () => {
     };
     return emojis[category as keyof typeof emojis] || '💼';
   };
+
+  const handleInvest = (asset: any) => {
+    setSelectedAsset(asset);
+    setShowInvestModal(true);
+  };
+
+  const InvestModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-slate-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Invest in {selectedAsset?.name}
+          </h3>
+          <button
+            onClick={() => setShowInvestModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="text-sm text-gray-400 mb-2">Asset Details</div>
+            <div className="text-white font-medium">{selectedAsset?.name}</div>
+            <div className="text-gray-400 text-sm">Value: {selectedAsset?.value}</div>
+            <div className="text-green-400 text-sm">APY: {selectedAsset?.apy}</div>
+            <div className="text-gray-400 text-sm">Location: {selectedAsset?.location}</div>
+            <div className="text-gray-400 text-sm">Tokenized: {selectedAsset?.tokenized}</div>
+            <div className="text-gray-400 text-sm">Min. Investment: {selectedAsset?.minInvestment}</div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Investment Amount
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="1000"
+                className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 outline-none pr-12"
+              />
+              <span className="absolute right-3 top-2 text-gray-400">USD</span>
+            </div>
+            <div className="text-sm text-gray-400 mt-1">
+              Minimum: {selectedAsset?.minInvestment}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Investment Type
+            </label>
+            <select className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:border-blue-500 outline-none">
+              <option>Fractional Ownership</option>
+              <option>Token Investment</option>
+              <option>Revenue Share</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-700/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Investment Amount:</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Platform Fee (2%):</span>
+              <span className="text-white">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-gray-400">Expected Annual Return:</span>
+              <span className="text-green-400">$0.00</span>
+            </div>
+            <div className="flex justify-between text-sm mt-2 pt-2 border-t border-slate-600">
+              <span className="text-gray-400 font-medium">Total Cost:</span>
+              <span className="text-white font-medium">$0.00</span>
+            </div>
+          </div>
+          
+          <div className="bg-orange-900/20 border border-orange-700 rounded-lg p-3">
+            <div className="text-orange-400 text-sm font-medium mb-1">⚠️ Investment Notice</div>
+            <div className="text-orange-300 text-sm">
+              Real World Assets carry inherent risks. This investment is not guaranteed and 
+              may lose value. Only invest what you can afford to lose.
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => setShowInvestModal(false)}
+            className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors">
+            Invest Now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -267,7 +372,10 @@ const RWA: React.FC = () => {
               </div>
             </div>
 
-            <button className="w-full px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors">
+            <button
+              onClick={() => handleInvest(asset)}
+              className="w-full px-4 py-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg transition-colors"
+            >
               Invest Now
             </button>
           </div>
@@ -313,6 +421,8 @@ const RWA: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {showInvestModal && <InvestModal />}
     </div>
   );
 };
