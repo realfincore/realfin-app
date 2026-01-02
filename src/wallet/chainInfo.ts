@@ -7,8 +7,8 @@ export const REALFINHUB: ChainInfo & {
 } = {
   chainId: "realfin",
   chainName: "Realfin",
-  rpc: "http://0.0.0.0:26657",
-  rest: "http://0.0.0.0:1317",
+  rpc: "https://rpc.real.finance",
+  rest: "https://rest.real.finance",
   bip44: { coinType: 118 },
   bech32Config: {
     bech32PrefixAccAddr: "realfin",

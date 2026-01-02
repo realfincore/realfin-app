@@ -11,6 +11,7 @@ const Stocks = lazy(() => import("./pages/Stocks"));
 const Crypto = lazy(() => import("./pages/Crypto"));
 const RWA = lazy(() => import("./pages/RWA"));
 const ChainData = lazy(() => import("./pages/ChainData"));
+const Stake = lazy(() => import("./pages/Stake"));
 
 function App() {
   return (
@@ -62,6 +63,10 @@ function App() {
               <Route
                 path="chain-data"
                 element={<ChainData />}
+              />
+              <Route
+                path="stake"
+                element={<Stake />}
               />
             </Route>
           </Routes>

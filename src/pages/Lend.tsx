@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { PiggyBank, TrendingUp, Shield, DollarSign } from "lucide-react";
+import { PiggyBank, TrendingUp, Shield, DollarSign, Send, ArrowDownLeft, X } from "lucide-react";
 
 const Lend: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"lend" | "borrowed">("lend");
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
+  const [selectedAsset, setSelectedAsset] = useState<string>("");
 
   const lendingPools = [
     { asset: "ATOM", apy: "12.5%", tvl: "$2.3M", available: "$450K", collateral: "125%" },
@@ -21,6 +24,130 @@ const Lend: React.FC = () => {
     { asset: "USDC", borrowed: "1,200", debt: "98.4", ltv: "65%", liquidation: "$0.85", status: "Safe" },
     { asset: "ATOM", borrowed: "50.0", debt: "8.2", ltv: "45%", liquidation: "$6.50", status: "Safe" }
   ];
+
+  const handleSend = (asset: string) => {
+    setSelectedAsset(asset);
+    setShowSendModal(true);
+  };
+
+  const handleReceive = (asset: string) => {
+    setSelectedAsset(asset);
+    setShowReceiveModal(true);
+  };
+
+  const SendModal = () => (
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="mx-4 w-full max-w-md rounded-xl border border-slate-700 bg-slate-800 p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="flex items-center text-xl font-semibold text-white">
+            <Send className="mr-2 h-5 w-5" />
+            Send {selectedAsset}
+          </h3>
+          <button
+            onClick={() => setShowSendModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">Recipient Address</label>
+            <input
+              type="text"
+              placeholder="Enter wallet address"
+              className="w-full rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-gray-400 outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">Amount</label>
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="0.00"
+                className="w-full rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 pr-16 text-white placeholder-gray-400 outline-none focus:border-blue-500"
+              />
+              <span className="absolute top-2 right-3 text-gray-400">{selectedAsset}</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">Memo (Optional)</label>
+            <input
+              type="text"
+              placeholder="Enter memo"
+              className="w-full rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 text-white placeholder-gray-400 outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div className="rounded-lg bg-slate-700/50 p-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Network Fee:</span>
+              <span className="text-white">0.001 {selectedAsset}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex space-x-3">
+          <button
+            onClick={() => setShowSendModal(false)}
+            className="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-white transition-colors hover:bg-slate-600"
+          >
+            Cancel
+          </button>
+          <button className="flex-1 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-4 py-2 text-white transition-colors hover:from-blue-500 hover:to-purple-500">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const ReceiveModal = () => (
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="mx-4 w-full max-w-md rounded-xl border border-slate-700 bg-slate-800 p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <h3 className="flex items-center text-xl font-semibold text-white">
+            <ArrowDownLeft className="mr-2 h-5 w-5" />
+            Receive {selectedAsset}
+          </h3>
+          <button
+            onClick={() => setShowReceiveModal(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4 text-center">
+          <div className="inline-block rounded-lg bg-white p-4">
+            <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-gray-200">
+              <span className="text-xs text-gray-500">QR Code</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">Your {selectedAsset} Address</label>
+            <div className="rounded-lg border border-slate-600 bg-slate-700 p-3">
+              <div className="font-mono text-sm break-all text-white">
+                realfin1abc123def456ghi789jkl012mno345pqr678stu901
+              </div>
+            </div>
+          </div>
+
+          <button className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
+            Copy Address
+          </button>
+
+          <p className="text-sm text-gray-400">
+            Only send {selectedAsset} to this address. Sending other assets may result in permanent loss.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-8">
@@ -155,6 +282,18 @@ const Lend: React.FC = () => {
                     <div className="text-sm text-gray-400">APY: {position.apy}</div>
                   </div>
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSend(position.asset)}
+                      className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={() => handleReceive(position.asset)}
+                      className="rounded-md bg-purple-600 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-700"
+                    >
+                      Receive
+                    </button>
                     <button className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700">
                       Withdraw
                     </button>
@@ -200,6 +339,18 @@ const Lend: React.FC = () => {
                     <div className="text-sm text-gray-400">Liquidation Price</div>
                   </div>
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSend(position.asset)}
+                      className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-700"
+                    >
+                      Send
+                    </button>
+                    <button
+                      onClick={() => handleReceive(position.asset)}
+                      className="rounded-md bg-purple-600 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-700"
+                    >
+                      Receive
+                    </button>
                     <button className="rounded-md bg-red-600 px-3 py-1 text-sm text-white transition-colors hover:bg-red-700">
                       Repay
                     </button>
@@ -213,6 +364,9 @@ const Lend: React.FC = () => {
           </div>
         </>
       )}
+
+      {showSendModal && <SendModal />}
+      {showReceiveModal && <ReceiveModal />}
     </div>
   );
 };

@@ -38,6 +38,16 @@ import type { MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1b
 import type { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { SigningCosmWasmClient, type SigningCosmWasmClientOptions } from "@cosmjs/cosmwasm-stargate";
 
+import { msgTypes as RealfinCreditscoreV_1MsgTypes } from "../messages/realfin.creditscore.v1";
+import {
+  QueryAllRateRequest,
+  QueryAllRateResponse
+} from "../messages/realfin.creditscore.v1/types/realfin/creditscore/v1/query";
+import { PageRequest } from "../messages/realfin.creditscore.v1/types/cosmos/base/query/v1beta1/pagination";
+
+import { msgTypes as RealfinOracleV_1MsgTypes } from "../messages/realfin.oracle.v1";
+import { msgTypes as RealfinRealestateV_1MsgTypes } from "../messages/realfin.realestate.v1";
+
 export class BaseWallet extends SigningCosmWasmClient {
   address!: string;
   pubKey?: Uint8Array;
@@ -78,10 +88,31 @@ export class BaseWallet extends SigningCosmWasmClient {
       setupStakingExtension,
       setupTxExtension
     );
+    this.registerMessages();
+    this.queryAllCreditScores();
   }
 
   async getSigner() {
     return this.offlineSigner;
+  }
+
+  getClient() {
+    const client = this.getCometClient();
+
+    if (!client) {
+      throw "Tendermint client not initialized";
+    }
+
+    return client;
+  }
+
+  private registerMessages() {
+    for (const msgs of [RealfinCreditscoreV_1MsgTypes, RealfinOracleV_1MsgTypes, RealfinRealestateV_1MsgTypes]) {
+      for (const m of msgs) {
+        const [url, msg] = m;
+        this.registry.register(url, msg);
+      }
+    }
   }
 
   async simulateTx(
@@ -337,6 +368,32 @@ export class BaseWallet extends SigningCosmWasmClient {
       authInfoBytes: signed.authInfoBytes,
       signatures: [fromBase64(signature.signature)]
     });
+  }
+
+  async queryAllCreditScores() {
+    const client = this.getClient();
+
+    const msg = QueryAllRateRequest.encode({
+      pagination: PageRequest.fromPartial({
+        limit: 10
+      })
+    }).finish();
+
+    const query = {
+      path: "/realfin.creditscore.v1.Query/ListRate",
+      data: msg,
+      prove: true
+    };
+
+    const response = await client.abciQuery(query);
+
+    const paramsResponse = QueryAllRateResponse.decode(response.value);
+    return paramsResponse;
+  }
+
+  async getNetworkData() {
+    const client = this.getClient();
+    return Promise.all([client.blockchain(), client.status(), client.block()]);
   }
 
   async simulateMultiTx(

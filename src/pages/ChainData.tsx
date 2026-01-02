@@ -1,104 +1,95 @@
-import React, { useState } from 'react';
-import { Database, Activity, Users, Zap, TrendingUp, Clock, Globe, Server } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Database, Activity, Users, Zap, TrendingUp, Clock, Globe, Server } from "lucide-react";
+import { useWallet } from "../context/WalletContext";
+import { toHex } from "@cosmjs/encoding";
+import { StringUtils } from "../utils/StringUtils";
 
 const ChainData: React.FC = () => {
-  const [selectedChain, setSelectedChain] = useState<string>('cosmos');
+  const [selectedChain, setSelectedChain] = useState<string>("realfin");
+  const [recentBlocks, setRecentBlocks] = useState<{ height: number; time: string; validator: string; hash: string }[]>(
+    []
+  );
+  const { wallet } = useWallet();
 
-  const chains = ['cosmos', 'osmosis', 'juno', 'stargaze', 'akash'];
+  const [chainMetrics, setChainMetrics] = useState({
+    realfin: {
+      name: "Realfin",
+      blockHeight: "-",
+      blockTime: "1s",
+      validators: "1",
+      bondedTokens: "72,234,567 RLF",
+      bondingRate: "68.3%",
+      inflation: "7.5%",
+      communityPool: "892,345 RLF",
+      avgGas: "0.025 RLF",
+      proposals: "1",
+      transactions24h: "8,984"
+    }
+  });
 
-  const chainMetrics = {
-    cosmos: {
-      name: 'Cosmos Hub',
-      blockHeight: '18,542,890',
-      blockTime: '6.8s',
-      validators: '175',
-      bondedTokens: '281,234,567 ATOM',
-      bondingRate: '68.3%',
-      inflation: '14.5%',
-      communityPool: '892,345 ATOM',
-      avgGas: '0.025 ATOM',
-      proposals: '89',
-      transactions24h: '125,678'
-    },
-    osmosis: {
-      name: 'Osmosis',
-      blockHeight: '12,345,678',
-      blockTime: '5.9s',
-      validators: '150',
-      bondedTokens: '445,678,901 OSMO',
-      bondingRate: '72.1%',
-      inflation: '18.2%',
-      communityPool: '2,345,678 OSMO',
-      avgGas: '0.01 OSMO',
-      proposals: '67',
-      transactions24h: '89,456'
-    },
-    juno: {
-      name: 'Juno Network',
-      blockHeight: '9,876,543',
-      blockTime: '6.2s',
-      validators: '125',
-      bondedTokens: '78,901,234 JUNO',
-      bondingRate: '65.8%',
-      inflation: '10.5%',
-      communityPool: '456,789 JUNO',
-      avgGas: '0.03 JUNO',
-      proposals: '45',
-      transactions24h: '34,567'
-    },
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [blockchain, status, block] = (await wallet?.getNetworkData?.()) ?? [];
+        const blocks = (blockchain?.blockMetas ?? []).map((item) => {
+          return {
+            height: item.header.height,
+            time: item.header.time.toLocaleDateString(),
+            hash: StringUtils.truncateString(toHex(item.header.lastBlockId?.hash!), 8, 16),
+            validator: StringUtils.truncateString(toHex(item.header.validatorsHash!), 8, 16)
+          };
+        });
+        setRecentBlocks(blocks);
+        setChainMetrics({
+          realfin: {
+            ...chainMetrics.realfin,
+            blockHeight: `${blockchain?.lastHeight ?? "-"} `
+          }
+        });
+      } catch (err) {
+        console.error("Error loading:", err);
+      }
+    };
 
-  const currentChain = chainMetrics[selectedChain as keyof typeof chainMetrics] || chainMetrics.cosmos;
+    fetchData();
+  }, []);
+
+  const chains = ["realfin"];
+  const currentChain = chainMetrics[selectedChain as keyof typeof chainMetrics] || chainMetrics.realfin;
 
   const networkStats = [
     {
-      title: 'Active Validators',
+      title: "Active Validators",
       value: currentChain.validators,
-      change: '+2.3%',
       positive: true,
       icon: Server,
-      color: 'text-blue-400'
+      color: "text-blue-400"
     },
     {
-      title: '24h Transactions',
+      title: "24h Transactions",
       value: currentChain.transactions24h,
-      change: '+8.7%',
       positive: true,
       icon: Activity,
-      color: 'text-green-400'
+      color: "text-green-400"
     },
     {
-      title: 'Avg Block Time',
+      title: "Avg Block Time",
       value: currentChain.blockTime,
-      change: '-0.2s',
       positive: true,
       icon: Clock,
-      color: 'text-purple-400'
+      color: "text-purple-400"
     },
     {
-      title: 'Bonding Rate',
+      title: "Bonding Rate",
       value: currentChain.bondingRate,
-      change: '+1.2%',
       positive: true,
       icon: TrendingUp,
-      color: 'text-orange-400'
-    },
-  ];
-
-  const recentBlocks = [
-    { height: '18,542,890', time: '6.8s ago', txs: '45', validator: 'Cosmos Validator 1', hash: '0x1a2b3c...' },
-    { height: '18,542,889', time: '13.6s ago', txs: '32', validator: 'Stakely', hash: '0x2b3c4d...' },
-    { height: '18,542,888', time: '20.4s ago', txs: '67', validator: 'Cosmostation', hash: '0x3c4d5e...' },
-    { height: '18,542,887', time: '27.2s ago', txs: '23', validator: 'SG-1', hash: '0x4d5e6f...' },
-    { height: '18,542,886', time: '34.0s ago', txs: '54', validator: 'Citadel.one', hash: '0x5e6f7g...' },
+      color: "text-orange-400"
+    }
   ];
 
   const topValidators = [
-    { name: 'Cosmos Validator 1', voting_power: '8.5%', commission: '5.0%', uptime: '99.8%', status: 'Active' },
-    { name: 'Stakely', voting_power: '7.2%', commission: '4.0%', uptime: '99.9%', status: 'Active' },
-    { name: 'Cosmostation', voting_power: '6.8%', commission: '3.5%', uptime: '99.7%', status: 'Active' },
-    { name: 'SG-1', voting_power: '6.1%', commission: '7.5%', uptime: '99.6%', status: 'Active' },
-    { name: 'Citadel.one', voting_power: '5.9%', commission: '5.5%', uptime: '99.5%', status: 'Active' },
+    { name: "Realfin Validator 1", voting_power: "8.5%", commission: "5.0%", uptime: "99.8%", status: "Active" }
   ];
 
   return (
@@ -108,10 +99,14 @@ const ChainData: React.FC = () => {
         <select
           value={selectedChain}
           onChange={(e) => setSelectedChain(e.target.value)}
-          className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600 focus:border-blue-500 outline-none capitalize"
+          className="rounded-lg border border-slate-600 bg-slate-700 px-4 py-2 text-white capitalize outline-none focus:border-blue-500"
         >
-          {chains.map(chain => (
-            <option key={chain} value={chain} className="capitalize">
+          {chains.map((chain) => (
+            <option
+              key={chain}
+              value={chain}
+              className="capitalize"
+            >
               {chain}
             </option>
           ))}
@@ -119,25 +114,25 @@ const ChainData: React.FC = () => {
       </div>
 
       {/* Network Overview */}
-      <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
-          <Globe className="h-6 w-6 mr-2" />
+      <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-xl">
+        <h2 className="mb-6 flex items-center text-xl font-semibold text-white">
+          <Globe className="mr-2 h-6 w-6" />
           {currentChain.name} Network Overview
         </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {networkStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="bg-slate-700/30 rounded-lg p-4 hover:bg-slate-700/50 transition-colors">
-                <div className="flex items-center justify-between mb-3">
+              <div
+                key={index}
+                className="rounded-lg bg-slate-700/30 p-4 transition-colors hover:bg-slate-700/50"
+              >
+                <div className="mb-3 flex items-center justify-between">
                   <Icon className={`h-6 w-6 ${stat.color}`} />
-                  <div className={`text-sm ${stat.positive ? 'text-green-400' : 'text-red-400'}`}>
-                    {stat.change}
-                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-gray-400 text-sm">{stat.title}</div>
+                <div className="mb-1 text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-sm text-gray-400">{stat.title}</div>
               </div>
             );
           })}
@@ -145,16 +140,16 @@ const ChainData: React.FC = () => {
       </div>
 
       {/* Detailed Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-            <Database className="h-5 w-5 mr-2" />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-xl">
+          <h3 className="mb-4 flex items-center text-lg font-semibold text-white">
+            <Database className="mr-2 h-5 w-5" />
             Blockchain Metrics
           </h3>
           <div className="space-y-4">
             <div className="flex justify-between">
               <span className="text-gray-400">Block Height</span>
-              <span className="text-white font-mono">{currentChain.blockHeight}</span>
+              <span className="font-mono text-white">{currentChain.blockHeight}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Bonded Tokens</span>
@@ -179,30 +174,30 @@ const ChainData: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-            <Activity className="h-5 w-5 mr-2" />
+        <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-xl">
+          <h3 className="mb-4 flex items-center text-lg font-semibold text-white">
+            <Activity className="mr-2 h-5 w-5" />
             Network Health
           </h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Network Status</span>
               <div className="flex items-center">
-                <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                <div className="mr-2 h-3 w-3 animate-pulse rounded-full bg-green-500"></div>
                 <span className="text-green-400">Healthy</span>
               </div>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Avg TPS</span>
-              <span className="text-white">7.2 tx/s</span>
+              <span className="text-white">24 tx/s</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Network Uptime</span>
-              <span className="text-green-400">99.8%</span>
+              <span className="text-green-400">99.9%</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Missed Blocks</span>
-              <span className="text-white">0.2%</span>
+              <span className="text-white">0</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Jailed Validators</span>
@@ -213,28 +208,29 @@ const ChainData: React.FC = () => {
       </div>
 
       {/* Recent Blocks */}
-      <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-          <Zap className="h-5 w-5 mr-2" />
+      <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-xl">
+        <h3 className="mb-4 flex items-center text-lg font-semibold text-white">
+          <Zap className="mr-2 h-5 w-5" />
           Recent Blocks
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-gray-400 border-b border-slate-700">
+              <tr className="border-b border-slate-700 text-left text-gray-400">
                 <th className="pb-3">Height</th>
                 <th className="pb-3">Time</th>
-                <th className="pb-3">Txs</th>
                 <th className="pb-3">Validator</th>
                 <th className="pb-3">Hash</th>
               </tr>
             </thead>
             <tbody>
               {recentBlocks.map((block, index) => (
-                <tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/20">
+                <tr
+                  key={index}
+                  className="border-b border-slate-700/50 hover:bg-slate-700/20"
+                >
                   <td className="py-3 font-mono text-white">{block.height}</td>
                   <td className="py-3 text-gray-300">{block.time}</td>
-                  <td className="py-3 text-blue-400">{block.txs}</td>
                   <td className="py-3 text-gray-300">{block.validator}</td>
                   <td className="py-3 font-mono text-gray-400">{block.hash}</td>
                 </tr>
@@ -245,15 +241,15 @@ const ChainData: React.FC = () => {
       </div>
 
       {/* Top Validators */}
-      <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-          <Users className="h-5 w-5 mr-2" />
+      <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6 backdrop-blur-xl">
+        <h3 className="mb-4 flex items-center text-lg font-semibold text-white">
+          <Users className="mr-2 h-5 w-5" />
           Top Validators
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-gray-400 border-b border-slate-700">
+              <tr className="border-b border-slate-700 text-left text-gray-400">
                 <th className="pb-3">Validator</th>
                 <th className="pb-3">Voting Power</th>
                 <th className="pb-3">Commission</th>
@@ -263,22 +259,23 @@ const ChainData: React.FC = () => {
             </thead>
             <tbody>
               {topValidators.map((validator, index) => (
-                <tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/20">
+                <tr
+                  key={index}
+                  className="border-b border-slate-700/50 hover:bg-slate-700/20"
+                >
                   <td className="py-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-linear-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-500 text-sm font-bold text-white">
                         {index + 1}
                       </div>
                       <span className="text-white">{validator.name}</span>
                     </div>
                   </td>
-                  <td className="py-3 text-blue-400 font-semibold">{validator.voting_power}</td>
+                  <td className="py-3 font-semibold text-blue-400">{validator.voting_power}</td>
                   <td className="py-3 text-gray-300">{validator.commission}</td>
                   <td className="py-3 text-green-400">{validator.uptime}</td>
                   <td className="py-3">
-                    <span className="px-2 py-1 bg-green-600 text-white rounded-full text-xs">
-                      {validator.status}
-                    </span>
+                    <span className="rounded-full bg-green-600 px-2 py-1 text-xs text-white">{validator.status}</span>
                   </td>
                 </tr>
               ))}
